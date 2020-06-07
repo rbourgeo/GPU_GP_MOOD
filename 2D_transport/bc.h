@@ -1,1 +1,1 @@
-__global__ void bc(float *f);
+__global__ void bc(double f[]);

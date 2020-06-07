@@ -1,29 +1,27 @@
-#include "parameters.h"
-#include "2D_bij.h"
+#include "exact_sol.h"
 #include "init.h"
+#include "parameters.h"
 
-__global__ void initialize(float f[], float x[], float y[], const float dx, const float dy)
+__global__ void initialize(double f[], double x[], double y[], const double dx, const double dy)
 {
-	int tidx = threadIdx.x + blockIdx.x*blockDim.x;
-	int tidy = threadIdx.y + blockIdx.y*blockDim.y;
+    int tidx = c2f(threadIdx.x + blockIdx.x * blockDim.x);
+    int tidy = c2f(threadIdx.y + blockIdx.y * blockDim.y);
 
-	float xt = -0.5f + (float(tidx)+0.5f)*dx; //centers of cells
-	float yt = -0.5f + (float(tidy)+0.5f)*dy;
+    double xt = (double(tidx) - 0.5f) * dx; //centers of cells
+    double yt = (double(tidy) - 0.5f) * dy;
 
-	if(tidx < lf)
-	{
-		x[tidx] = xt;
-	}
+    if (tidx <= lf + ngc) {
+        x[f2c(tidx)] = xt;
+    }
 
-	if(tidy < nf)
-	{
-		y[tidy] = yt;
-	}
+    if (tidy <= nf + ngc) {
+        y[f2c(tidy)] = yt;
+    }
 
-	if(tidx < lf){
-		if(tidy < nf){
-			f[ij(tidy,tidx)] = exp(-0.5f*(xt*xt + yt*yt));
-		}
-	}
-
+    if (tidx <= lf + ngc) {
+        if (tidy <= nf + ngc) {
+            //f[ij(tidy, tidx)] = exp(-100.0f * ((xt-0.5f) * (xt-0.5f) + (yt-0.5f) * (yt-0.5f)));
+            f[ij(tidy, tidx)] = exact_soln(tidx, tidy, dx, dy, x, y);
+        }
+    }
 }
