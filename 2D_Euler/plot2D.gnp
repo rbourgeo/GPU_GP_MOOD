@@ -1,0 +1,45 @@
+#Gnuplot script for 2D plot with contour
+
+#rho.dat / rho.dat should the contoured data in a matrix structure i.e.:
+#a11 a12 a13...
+#a21 a22 a23...
+#.
+#.
+#.
+
+#final.dat is x, y, rho, vx, vy, rho
+
+#ym->yM y domain
+#xm->xM x domain
+
+#niso number of isoline
+
+clear
+    reset
+
+        ym
+    = 0 yM = 1.0 xm = 0 xM = 1.0
+
+    niso
+    = 10
+
+    stats "rho.dat" matrix
+
+        itox(i)
+    = xm + (xM - xm) * i / STATS_size_x jtoy(j) = ym + (yM - ym) * j / STATS_size_y
+
+                                                                           set contour base set size ratio yM
+        / xM set cntrparam level incremental STATS_min,
+        (STATS_max - STATS_min) / niso, STATS_max unset surface set table 'cont.dat' splot 'rho.dat' u(itox(column(1)))
+    : (jtoy(column(2))) : 3 matrix
+
+    unset table
+
+    reset set size ratio yM
+    / xM unset key
+#set palette defined(0 "dark-blue", 0.25 "blue", 0.5 "white", 0.75 "red", 1 "dark-red") #like DMR in 2D FDM
+    set palette rgb 30
+, 31
+, 32;
+#set palette gray
+plot 'final.dat' u 1 : 2 : 3 with image, 'cont.dat' w l lt - 1 lw 0.2

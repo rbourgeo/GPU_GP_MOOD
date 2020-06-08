@@ -1,0 +1,6 @@
+clear
+reset
+set logscale
+plot 'error.dat' u 1 : 2 with linespoints
+E(x) = p * x + C
+fit E(x) 'error.dat' using(log($1)): (log($2))via p, C
