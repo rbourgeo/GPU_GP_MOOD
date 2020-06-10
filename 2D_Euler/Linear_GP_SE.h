@@ -28,6 +28,16 @@ __device__ __host__ double Extrapolate(
       result =  result + zT[iFace*nop*ngp + gaussian_pt*nop + k] * f[ij_sol(idy + index[dir_y*nop + k], idx + index[dir_x*nop + k], i_cons)];
     }
 
+    // if((idx == 1)&&(idy==nf/2)&&(i_cons==i_rho)&&(iFace==iT)) {
+    //   for (int k = 0; k <= nop - 1; k++) {
+    //     printf("Rho in = %.17g\n", f[ij_sol(idy + index[dir_y*nop + k], idx + index[dir_x*nop + k], i_cons)]);
+    //   }
+    //
+    //   printf("Rho top 50, 50 = %.17g\n", result);
+    //
+    // }
+
+
     return result;
 
   }

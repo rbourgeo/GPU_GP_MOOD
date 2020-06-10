@@ -11,7 +11,7 @@
  f[] is the solution
  dir is the direction of reconstruction, x or y */
 
-__host__ __device__ inline void reconstruction(double ul[],
+__device__ inline void reconstruction(double ul[],
                                                double ur[],
                                               const int idy,
                                               const int idx,
@@ -21,6 +21,7 @@ __host__ __device__ inline void reconstruction(double ul[],
                                               const int index[],
                                               const int gaussian_pt)
 {
+
 
     if (space_method == FOG) {
 

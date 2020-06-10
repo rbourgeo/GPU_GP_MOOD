@@ -36,6 +36,6 @@ const int ord1 = 0, ord3 = 1, ord5 = 2;
 
 const int i_rho     = 0, i_momx = 1, i_momy = 2, i_ener = 3;
 const int Lin_gauss = 3, Sod    = 4, RP_3 = 5;
-const int Neumann = 1, Periodic = 1 ;
+const int Neumann = 1, Periodic = 2 ;
 
 #endif

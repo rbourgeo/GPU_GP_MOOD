@@ -118,7 +118,7 @@ int main()
 
 
 
-  double t = 0.0f;//, tio = 0.5f;
+  double t = 0;//, tio = 0.5f;
 
   //Allocate Memory
 
@@ -188,12 +188,13 @@ int main()
     bc<<<dimGrid, dimBlock>>>(d_f);
     cudaDeviceSynchronize();
 
-    dt = set_dt(d_f, d_dt_array, d_dt_array_out, CFL, dx, dy);
-
-  //  dt = 1.6666666666666668E-003;
+    //dt = set_dt(d_f, d_dt_array, d_dt_array_out, CFL, dx, dy);
+    dt =1.6666666666666668E-003;
     dtfinal =  tmax-t;
+
     if (dt>dtfinal) {
-      dt= dtfinal;
+      dt = dtfinal;
+      std::cout<<"HEY"<<dtfinal<<" "<<dt<<std::endl;
     }
 
     if (time_method == SSP_RK1) {
@@ -211,6 +212,8 @@ int main()
 
     //std::cout<<t<<std::endl;
     t += dt;
+    std:: cout<< dt << " "<<t<< std::endl;
+
   }
 
   cudaEventRecord(stop, 0);
