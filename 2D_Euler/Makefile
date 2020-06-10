@@ -1,6 +1,6 @@
 C = nvcc
 NVCCFLAGS = -arch=sm_60 --compiler-options '-Wuninitialized,-Wall,-Wextra'
-CFLAGS = -std=c++11 -rdc=true
+CFLAGS = -std=c++11 -rdc=true -lquadmath
 
 all: transport
 

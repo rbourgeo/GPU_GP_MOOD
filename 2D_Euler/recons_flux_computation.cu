@@ -2,6 +2,7 @@
 #include "parameters.h"
 #include "constants.h"
 #include "reconstruction.h"
+#include "hll.h"
 
 __global__ void ftcs(const double d_f[]
   , double d_fluxes_x[]
@@ -40,8 +41,8 @@ __global__ void ftcs(const double d_f[]
 
             /*Fluxes  computation*/
 
-              Godunov_Flux(ul, ur, dir_x, fx);
-              Godunov_Flux(ub, ut, dir_y, fy);
+              HLL_flux(ul, ur, dir_x, fx);
+              HLL_flux(ub, ut, dir_y, fy);
 
 
             /*Fluxes storage*/
@@ -58,8 +59,6 @@ __global__ void ftcs(const double d_f[]
              d_fluxes_x[ij_sol(tidy, tidx, i_cons)] *= dt / dx;
              d_fluxes_y[ij_sol(tidy, tidx, i_cons)] *= dt / dy;
 
-            //d_fluxes_x[ij_sol(tidy, tidx, i_cons)] = 0.0;
-            //d_fluxes_y[ij_sol(tidy, tidx, i_cons)] = 0.0;
           }
         }
 

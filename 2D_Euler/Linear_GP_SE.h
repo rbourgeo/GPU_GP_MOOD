@@ -10,7 +10,8 @@ dir: direction of reconstructon
 GP : object of the class GP_stencil*/
 
 /*routine for extrapolation */
-__device__ __host__ double Extrapolate(const int idy,
+__device__ __host__ double Extrapolate(
+  const int idy,
   const int idx,
   const int iFace,
   const double zT[],
@@ -20,10 +21,11 @@ __device__ __host__ double Extrapolate(const int idy,
   const int i_cons)
   {
 
-    double result = 0.0;
+    double result;
+    result = 0.0;
 
     for (int k = 0; k <= nop - 1; k++) {
-      result += zT[iFace*nop*ngp + gaussian_pt*nop + k] * f[ij_sol(idy + index[dir_y*nop + k], idx + index[dir_x*nop + k], i_cons)];
+      result =  result + zT[iFace*nop*ngp + gaussian_pt*nop + k] * f[ij_sol(idy + index[dir_y*nop + k], idx + index[dir_x*nop + k], i_cons)];
     }
 
     return result;

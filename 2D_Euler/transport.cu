@@ -9,7 +9,10 @@
 #include "parameters.h"
 #include "recons_flux_computation.h"
 #include "set_equal.h"
-#include "state.h"
+#include "physics.h"
+#include "set_dt.h"
+#include <quadmath.h>
+
 
 int main()
 {
@@ -23,12 +26,17 @@ int main()
   //Integration Parameters
 
   /* Numerical Mesh Configuration */
-  double dx = Lx / double(lf);
-  double dy = Ly / double(nf);
+  __float128 dx_16 = Lx_16 / lf;
+  __float128 dy_16 = Ly_16 / nf;
+
+  double dx = dx_16, dy = dy_16;
+
+
+  double dt;
 
   double dtfinal;
 
-  double ell_;
+  __float128 ell_;
 
   /*init and computation of GP_stencil in the class*/
   if (ell_over_dx == 0)
@@ -37,11 +45,11 @@ int main()
   }
   else
   {
-    ell_ = dx*ell_over_dx;
+    ell_ = dx_16*ell_over_dx;
   }
 
-  GP_stencil GP(Mord,ell_);
-  GP.init(dx, dy);
+  GP_stencil GP(Mord, ell_);
+  GP.init(dx_16, dy_16);
 
   int *index, *d_index;
   double *zT, *d_zT;
@@ -62,6 +70,42 @@ int main()
 
     }
   }
+  std::cout.precision(17);
+
+  for (int k = 0; k <= nop-1; k++) {
+    std::cout<<"x "<< k<<" " <<index[dir_x*nop + k]<<std::endl;
+    std::cout<<"y "<< k<<" " <<index[dir_y*nop + k]<<std::endl;
+
+  }
+
+  std::cout<<"L,r=1" << std::endl;
+
+  for (int k = 0; k <= 2*3-2; k++) {
+    std::cout<<zT[iL*nop*ngp + 0*nop+ k]<<std::endl;
+  }
+
+
+
+  std::cout<<"T,r=1" << std::endl;
+
+  for (int k = 0; k <= 2*3-2; k++) {
+    std::cout<<zT[iT*nop*ngp + 0*nop + k]<<std::endl;
+  }
+
+
+  std::cout<<"R,r=1" << std::endl;
+
+  for (int k = 0; k <= 2*3-2; k++) {
+    std::cout<<zT[iR*nop*ngp + 0*nop + k]<<std::endl;
+  }
+
+
+  std::cout<<"B=1" << std::endl;
+
+  for (int k = 0; k <= 2*3-2; k++) {
+    std::cout<<zT[iB*nop*ngp + 0*nop + k]<<std::endl;
+  }
+
 
 
   GP._deallocate();
@@ -73,13 +117,8 @@ int main()
   cudaMemcpy(d_index, index, 2*nop*    sizeof(int   ), cudaMemcpyHostToDevice);
 
 
-  /* Time stepping parameters */
 
-  //double dt = CFL * pow(1.0f / (abs(ax) / dx + abs(ay) / dy),5./3);
-  double dt = CFL *1.0f / (abs(ax) / dx + abs(ay) / dy);
-
-
-  double t = 0.0f, tio = 0.5f;
+  double t = 0.0f;//, tio = 0.5f;
 
   //Allocate Memory
 
@@ -91,7 +130,7 @@ int main()
   size_t size_gw = ngp * ngp * sizeof(double);
 
   double *f,   *x,   *y,   *gauss_weight;
-  double *d_f, *d_x, *d_y, *d_fout,      *d_fluxes_x, *d_fluxes_y, *d_f1, *d_f2, *d_gauss_weight;
+  double *d_f, *d_x, *d_y, *d_fout,      *d_fluxes_x, *d_fluxes_y, *d_f1, *d_f2, *d_gauss_weight, *d_dt_array, *d_dt_array_out;
 
   f = new double[4 * le * ne];
   x = new double[le         ];
@@ -125,6 +164,10 @@ int main()
   cudaMalloc(&d_fluxes_y, total_size_sol);
   cudaMalloc(&d_x, size_x);
   cudaMalloc(&d_y, size_y);
+  cudaMalloc(&d_dt_array    , total_size);
+  cudaMalloc(&d_dt_array_out, total_size);
+
+
 
   //Apply Initial Condition
   initialize<<<dimGrid, dimBlock>>>(d_f, d_x, d_y, dx, dy);
@@ -135,12 +178,19 @@ int main()
 
   /*====================== Perform Integration =======================*/
   std::string f2;
-  int kk = 0;
+  //int kk = 0;
 
   cudaEventRecord(start, 0); // We only measure the computation time
 
   while (t < tmax) {
 
+    //Call BC
+    bc<<<dimGrid, dimBlock>>>(d_f);
+    cudaDeviceSynchronize();
+
+    dt = set_dt(d_f, d_dt_array, d_dt_array_out, CFL, dx, dy);
+
+  //  dt = 1.6666666666666668E-003;
     dtfinal =  tmax-t;
     if (dt>dtfinal) {
       dt= dtfinal;
@@ -193,6 +243,10 @@ int main()
   cudaFree(d_y);
   cudaFree(d_zT);
   cudaFree(d_index);
+  cudaFree(d_dt_array);
+  cudaFree(d_dt_array_out);
+
+
 
 
 

@@ -1,35 +1,40 @@
-
+// TO do :: dt fully //
 #ifndef PARAMETERS_H
 
 #include "constants.h"
+#include <quadmath.h>
+
 
 #define PARAMETERS_H
 
-const int ngc = 3; // Number of ghost cells
+const int ngc = 4; // Number of ghost cells
 
-const int lf = 1024 - 2*ngc; // number of x mesh
+const int lf = 512 - 2*ngc; // number of x mesh
 const int nf = lf; // number of y mesh
 
-const int ngp = 2; // number of gaussian point on edges
+const int ngp = 1; // number of gaussian point on edges
 
-const double Lx = 1.0;
-const double Ly = 1.0;
+const __float128 Lx_16 = 1;
+const __float128 Ly_16 = 1;
 
 const double CFL = 0.4;
-const double tmax = 1.;
+const double tmax = 0.8;
 
 const int le = lf + 2 * ngc; // total number of cells including ghosts
 const int ne = nf + 2 * ngc;
 
-const int space_method = Linear_GP_SE;
-const int time_method = SSP_RK3;
+const int space_method = PLM;
+const int time_method = SSP_RK2;
+
+const int IC_type = RP_3;
+const int BC_type = Neumann;
 
 const int Mord = 3; /*Order of gp extrapolation*/
 const int ell_over_dx = 0;
-const double ell = 0.1;
+const __float128 ell = longdouble(1)/10;
 
-const double ax = 1.0; // speed
-const double ay = 1.0; // speed
+const double ax = 0.0; // speed
+const double ay = 0.0; // speed
 
 const int nop = 2*Mord-1; //number of points in the gp stencil
 
